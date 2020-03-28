@@ -58,7 +58,17 @@ getJSON(randomUrl, (returnedData) => {
 });
 
 // Create modal window to display the employee details when user click any card.
-// Switch back and forth between employees when the detail modal window is open.
+function modalInnerHtml(modalInfoDiv, employee){
+    modalInfoDiv.innerHTML=`
+        <img class="modal-img" src=${employee.picture.large} alt="profile picture">
+        <h3 id="name" class="modal-name cap">${employee.name.first} ${employee.name.last}</h3>
+        <p class="modal-text">${employee.email}</p>
+        <p class="modal-text cap">${employee.location.city}</p>
+        <hr>
+        <p class="modal-text">${employee.phone}</p>
+        <p class="modal-text">${employee.location.street.number} ${employee.location.street.name}, ${employee.location.state}, ${employee.location.postcode}</p>
+        <p class="modal-text">Birthday: ${new Date(employee.dob.date).toLocaleDateString("en-US")}</p>`;
+}
 
 gallery.addEventListener('click', event => {
     const element = event.target;
@@ -69,7 +79,7 @@ gallery.addEventListener('click', event => {
         const firstName = nameElement.textContent.split(" ")[0];
         const lastName = nameElement.textContent.split(" ")[1];
 
-        const employee = results.find(employee => employee.name.first === firstName 
+        let employee = results.find(employee => employee.name.first === firstName 
             && employee.name.last === lastName);
 
         const modalDiv=document.createElement("div");
@@ -77,7 +87,7 @@ gallery.addEventListener('click', event => {
         const modal=document.createElement("div");
         modal.setAttribute('class',"modal");
 
-    // Create button to close the modal window.
+        // Create button to close the modal window.
         const closeButton=document.createElement('button');
         closeButton.setAttribute('class', 'modal-close-btn');
         closeButton.setAttribute('type','button');
@@ -88,22 +98,52 @@ gallery.addEventListener('click', event => {
         modalInfoDiv.setAttribute('class', 'modal-info-container');
         gallery.appendChild(modalDiv).appendChild(modal).appendChild(closeButton)
         modal.appendChild(modalInfoDiv);
-        modalInfoDiv.innerHTML=`
-            <img class="modal-img" src=${employee.picture.thumbnail} alt="profile picture">
-            <h3 id="name" class="modal-name cap">${employee.name.first} ${employee.name.last}</h3>
-            <p class="modal-text">${employee.email}</p>
-            <p class="modal-text cap">${employee.location.city}</p>
-            <hr>
-            <p class="modal-text">${employee.phone}</p>
-            <p class="modal-text">${employee.location.street.number} ${employee.location.street.name}, ${employee.location.state}, ${employee.location.postcode}</p>
-            <p class="modal-text">Birthday: ${new Date(employee.dob.date).toLocaleDateString("en-US")}</p>`;
 
+        modalInnerHtml(modalInfoDiv,employee);
+
+        const toggleDiv=document.createElement('div');
+        toggleDiv.setAttribute('class',"modal-btn-container");
+
+        const prevButton=document.createElement('button');
+        prevButton.setAttribute('class',"modal-prev btn");
+        prevButton.setAttribute('type','button');
+        prevButton.setAttribute('id','modal-prev');
+        prevButton.textContent='Prev';
+
+        const nextButton=document.createElement('button');
+        nextButton.setAttribute('class',"modal-next btn");
+        nextButton.setAttribute('type','button');
+        nextButton.setAttribute('id','modal-next');
+        nextButton.textContent='Next';
+
+        modalDiv.appendChild(toggleDiv).appendChild(prevButton);
+        toggleDiv.appendChild(nextButton);
+                    
         closeButton.addEventListener('click',(e)=>{
             modalDiv.remove();
+        });
+
+        // Switch back and forth between employees when the detail modal window is open.
+        nextButton.addEventListener('click',(e)=>{
+            const nextEmployee = results[results.indexOf(employee) + 1];
+            if(nextEmployee){
+            // adjust information in existing modal 
+                modalInnerHtml(modalInfoDiv,nextEmployee);
+                employee = nextEmployee;
+            }
+        });
+
+        prevButton.addEventListener('click',(e)=>{
+            const prevEmployee = results[results.indexOf(employee) - 1];
+            if(prevEmployee){
+                modalInnerHtml(modalInfoDiv,prevEmployee);
+                employee = prevEmployee;
+            }            
         });
     }
 });
 
+// Filter the employee by name with dynamically added search feature.
 const searchButton=document.getElementById('search-submit');
 const searchInput=document.getElementById('search-input');
 
@@ -115,7 +155,6 @@ searchInput.addEventListener('keyup',(e)=>{
     searchForEmployee(e.target.value.toLowerCase());
 });
 
-// Filter the employee by name with dynamically added search feature.
 function searchForEmployee(input) {
     let errorMessage = galleryDiv.gallery.querySelector("#errorMessage");
     if(errorMessage !== null) {
