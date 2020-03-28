@@ -60,20 +60,19 @@ getJSON(randomUrl, (returnedData) => {
 // Create modal window to display the employee details when user click any card.
 function modalInnerHtml(modalInfoDiv, employee){
     modalInfoDiv.innerHTML=`
-        <img class="modal-img" src=${employee.picture.large} alt="profile picture">
-        <h3 id="name" class="modal-name cap">${employee.name.first} ${employee.name.last}</h3>
-        <p class="modal-text">${employee.email}</p>
-        <p class="modal-text cap">${employee.location.city}</p>
-        <hr>
-        <p class="modal-text">${employee.phone}</p>
-        <p class="modal-text">${employee.location.street.number} ${employee.location.street.name}, ${employee.location.state}, ${employee.location.postcode}</p>
-        <p class="modal-text">Birthday: ${new Date(employee.dob.date).toLocaleDateString("en-US")}</p>`;
+    <img class="modal-img" src=${employee.picture.medium} alt="profile picture">
+    <h3 id="name" class="modal-name cap">${employee.name.first} ${employee.name.last}</h3>
+    <p class="modal-text">${employee.email}</p>
+    <p class="modal-text cap">${employee.location.city}</p>
+    <hr>
+    <p class="modal-text">${employee.phone}</p>
+    <p class="modal-text">${employee.location.street.number} ${employee.location.street.name}, ${employee.location.state}, ${employee.location.postcode}</p>
+    <p class="modal-text">Birthday: ${new Date(employee.dob.date).toLocaleDateString("en-US")}</p>`;
 }
 
 gallery.addEventListener('click', event => {
     const element = event.target;
     if (element.getAttribute("class") !== null && element.getAttribute("class").includes("card")) {
-
         const cardDiv = event.target.closest(".card");
         const nameElement = cardDiv.querySelector("#name");
         const firstName = nameElement.textContent.split(" ")[0];
@@ -101,6 +100,7 @@ gallery.addEventListener('click', event => {
 
         modalInnerHtml(modalInfoDiv,employee);
 
+        // create buttons with a separate div and append it to the modalDiv.
         const toggleDiv=document.createElement('div');
         toggleDiv.setAttribute('class',"modal-btn-container");
 
@@ -118,6 +118,13 @@ gallery.addEventListener('click', event => {
 
         modalDiv.appendChild(toggleDiv).appendChild(prevButton);
         toggleDiv.appendChild(nextButton);
+
+        // hide the nextButton for the last employee and the prevButton for the first one.
+        if(results.indexOf(employee) === 0 ){
+            prevButton.style.display = 'none';
+        } else if(results.indexOf(employee) === results.length - 1){
+            nextButton.style.display = 'none';
+        } 
                     
         closeButton.addEventListener('click',(e)=>{
             modalDiv.remove();
@@ -127,18 +134,26 @@ gallery.addEventListener('click', event => {
         nextButton.addEventListener('click',(e)=>{
             const nextEmployee = results[results.indexOf(employee) + 1];
             if(nextEmployee){
-            // adjust information in existing modal 
                 modalInnerHtml(modalInfoDiv,nextEmployee);
                 employee = nextEmployee;
+                if(results.indexOf(nextEmployee)===results.length-1){
+                    nextButton.style.display = 'none';
+                } else {
+                    prevButton.style.display = 'block';
+                }
             }
         });
-
         prevButton.addEventListener('click',(e)=>{
             const prevEmployee = results[results.indexOf(employee) - 1];
             if(prevEmployee){
                 modalInnerHtml(modalInfoDiv,prevEmployee);
                 employee = prevEmployee;
-            }            
+                if (results.indexOf(prevEmployee)===0){
+                    prevButton.style.display = 'none';
+                } else {
+                    nextButton.style.display = 'block';
+                }
+            }      
         });
     }
 });
