@@ -1,19 +1,6 @@
 
 // **Public API requests project**
 
-I changed the body background color in the CSS file.
-
-I added shadow to the cards.
-I changed the cards background color.
-
-I changed the font-size, font-weight and font-family of the title.
-I added shadow to the title text and changed its color.
-
-I changed the background color of the modalDiv window and toggelDiv.
-
-I changed the background color of the card-hover and buttons-hover.
-
-
 // Make an Ajax single request and pull 12 random users from the API along with some basic information .
 // Display new random employee information each time user refreshes the page using the response.
 // Place search input and submit button in the header.
